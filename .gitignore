@@ -1,2 +1,9 @@
 __pycache__/
 *.py[cod]
+.venv/
+__pycache__/
+*.pyc
+uploads/
+.DS_Store
+node_modules/
+.env
