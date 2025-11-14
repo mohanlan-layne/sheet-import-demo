@@ -21,12 +21,18 @@ def _resolve_database_target(url: str) -> str:
 
 _DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./sheet_import.db")
 _TARGET = _resolve_database_target(_DATABASE_URL)
+_IN_MEMORY_CONNECTION: sqlite3.Connection | None = None
 
 
 def configure_database(url: str) -> None:
     """Switch the active database connection to *url*."""
 
-    global _DATABASE_URL, _TARGET
+    global _DATABASE_URL, _TARGET, _IN_MEMORY_CONNECTION
+
+    if _IN_MEMORY_CONNECTION is not None:
+        _IN_MEMORY_CONNECTION.close()
+        _IN_MEMORY_CONNECTION = None
+
     _DATABASE_URL = url
     _TARGET = _resolve_database_target(url)
 
@@ -41,8 +47,18 @@ def get_database_url() -> str:
 def session_scope() -> Iterator[sqlite3.Connection]:
     """Provide a transaction scope using a SQLite connection."""
 
-    connection = sqlite3.connect(_TARGET)
-    connection.row_factory = sqlite3.Row
+    global _IN_MEMORY_CONNECTION
+
+    if _TARGET == ":memory:":
+        if _IN_MEMORY_CONNECTION is None:
+            _IN_MEMORY_CONNECTION = sqlite3.connect(_TARGET)
+            _IN_MEMORY_CONNECTION.row_factory = sqlite3.Row
+        connection = _IN_MEMORY_CONNECTION
+        should_close = False
+    else:
+        connection = sqlite3.connect(_TARGET)
+        connection.row_factory = sqlite3.Row
+        should_close = True
     try:
         yield connection
         connection.commit()
@@ -50,7 +66,8 @@ def session_scope() -> Iterator[sqlite3.Connection]:
         connection.rollback()
         raise
     finally:
-        connection.close()
+        if should_close:
+            connection.close()
 
 
 def initialize_database() -> None:
