@@ -1,6 +1,11 @@
 """Repository layer for persisting imported records."""
 
-from .coverage_region import CoverageRegionRepository, CoverageRegionCreate
+from .coverage_region import CoverageRegionCreate, CoverageRegionRepository
+from .import_log import ImportLogRepository
 
-__all__ = ["CoverageRegionRepository", "CoverageRegionCreate"]
+__all__ = [
+    "CoverageRegionCreate",
+    "CoverageRegionRepository",
+    "ImportLogRepository",
+]
 

@@ -13,6 +13,7 @@ class CoverageRegionCreate:
     code: str
     name: str
     description: str | None = None
+    row_number: int | None = None
 
 
 class CoverageRegionRepository:

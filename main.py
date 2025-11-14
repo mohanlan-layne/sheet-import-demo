@@ -3,10 +3,12 @@ from __future__ import annotations
 
 from fastapi import FastAPI
 
+from api.imports_controller import router as imports_router
 from api.upload_controller import router as upload_router
 
 app = FastAPI(title="Sheet Import Demo API")
 app.include_router(upload_router)
+app.include_router(imports_router)
 
 
 @app.get("/health")
