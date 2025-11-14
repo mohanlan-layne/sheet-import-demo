@@ -122,9 +122,10 @@ function createSheet(data: string[][]) {
     tableOverflow: true,
     tableHeight: '520px',
     minDimensions: [Math.max(5, data[0]?.length ?? 1), Math.max(10, data.length)],
-    onchange(_, x, y, value) {
+    onchange(_, __, x, y, value) {
       activeCell.value = { x, y };
-      handleSearch(value as string);
+      const text = value == null ? '' : String(value);
+      handleSearch(text);
     },
     onselection(_, x1, y1) {
       activeCell.value = { x: x1, y: y1 };
